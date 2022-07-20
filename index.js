@@ -3,11 +3,12 @@ import { ApolloServerPluginDrainHttpServer } from 'apollo-server-core';
 import { mergeResolvers, mergeTypeDefs } from '@graphql-tools/merge'
 import { loadFilesSync } from '@graphql-tools/load-files'
 import path from 'path';
-import user from './schema/user'
-import userRs from './resolvers/user'
 import express from 'express';
 import http from 'http';
 import models, { sequelize } from './models';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
+import './permissions'
+import { refreshToken } from './auth';
 async function assertDatabaseConnectionOk() {
   console.log(`Checking database connection...`);
   try {
@@ -21,6 +22,21 @@ async function assertDatabaseConnectionOk() {
 }
 const SECRET = 'asiodfhoi1hoi23jnl1kejd';
 const SECRET2 = 'asiodfhoi1hoi23jnl1kejasdjlkfasdd';
+const persistUser = (req, res, next) => {
+  const token = req.headers.authorization || '';
+  if (token) {
+
+    try {
+      const { userId } = jwt.verify(token, SECRET)
+      console.log("userId", userId)
+      req.userId = userId
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+      }
+    }
+  }
+  next()
+}
 async function startApolloServer() {
   await assertDatabaseConnectionOk()
   const app = express();
@@ -30,19 +46,23 @@ async function startApolloServer() {
     resolvers: mergeResolvers(loadFilesSync(path.join(__dirname, './resolvers'))),
     csrfPrevention: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: req => ({
-      models,
-      user: req.user,
-      secret: SECRET,
-      secret2: SECRET2,
-    }),
+    context: ({ req }) => {
+      return {
+        models,
+        userId: req.userId,
+        secret: SECRET,
+        secret2: SECRET2,
+      }
+    }
   });
-
   await server.start();
-  server.applyMiddleware({ app });
+  app.use(persistUser)
+  server.applyMiddleware({ app, });
   models.sequelize.sync({}).then(() => {
     httpServer.listen({ port: 4000 })
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+
   });
 }
+
 startApolloServer()

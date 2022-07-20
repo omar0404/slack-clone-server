@@ -1,8 +1,8 @@
 
-export default (sequelize,DataTypes) => {
-  return sequelize.define('team',{
-    name:{
-      type:DataTypes.STRING,
+export default (sequelize, DataTypes) => {
+  return sequelize.define('Team', {
+    name: {
+      type: DataTypes.STRING,
     }
   })
 

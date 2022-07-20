@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt'
 import { DataTypes, ValidationErrorItem } from 'sequelize';
-import { login } from '../auth';
+import { login, register } from '../auth';
 
 export default {
   Query: {
@@ -8,19 +8,26 @@ export default {
     allUsers: (parent, args, { models }) => models.sequelize.models.User.findAll(),
   },
   Mutation: {
-    login: async (_, { email, password }, { models, secret, secret2 }) => (
-      login(email, password, models.sequelize.models.User, secret, secret2)
-    ),
-    register: async (parent, user, { models }) => {
+    login: async (_, { email, password }, { models, secret, secret2 }) => {
+      console.log("login")
+      return login(email, password, models.sequelize.models.User, secret, secret2)
+    },
+    register: async (parent, user, { models, secret, secret2 }) => {
+      console.log("register")
+
       try {
-        await models.sequelize.models.User.create(user);
+        const _user = await models.sequelize.models.User.create(user);
+        const [token, refreshToken] = register(_user, secret, secret2)
         return {
           ok: true,
+          token,
+          refreshToken
         };
       } catch (e) {
+        console.log(e)
         return {
           ok: false,
-          errors: e.errors.map(({ path, message }) => ({ key: path, message })),
+          errors: e?.errors?.map(({ path, message }) => ({ key: path, message })),
         };
       }
     },

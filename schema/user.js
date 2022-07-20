@@ -15,12 +15,15 @@ export default `
   }
   type RegisterResponse {
     ok:Boolean!
+    token:String!
+    refreshToken:String!
     errors:[Error]
   }
   type LoginResponse {
     ok:Boolean!
-    token:String!
-    refreshToken:String!
+    token:String
+    refreshToken:String
+    errors:[Error]
   }
   type Mutation {
     register(username: String!, email: String!, password: String!): RegisterResponse

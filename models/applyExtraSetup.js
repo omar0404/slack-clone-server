@@ -1,8 +1,18 @@
 export default (sequelize) => {
-  const { User, team, message, channel } = sequelize.models;
-  User.belongsToMany(team, { through: 'member', foreignKey: 'userId' })
-  team.belongsToMany(User, { through: 'member', foreignKey: 'teamId' })
+  const { User, Team, message, channel } = sequelize.models;
+  User.belongsToMany(Team, { through: 'member', foreignKey: 'userId' })
+  Team.belongsToMany(User, { through: 'member', foreignKey: 'teamId' })
   message.belongsTo(channel, { foreignKey: 'channelId' })
   message.belongsTo(User, { foreignKey: 'userId' })
-  channel.belongsTo(team, { foreignKey: 'teamId' })
+  channel.belongsTo(Team, { foreignKey: 'teamId' })
 }
+
+
+/*
+team:{
+  member:userId
+}
+user:{
+  team:teamId
+}
+*/
