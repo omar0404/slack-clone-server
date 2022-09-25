@@ -4,12 +4,13 @@ import { login, register } from '../auth';
 
 export default {
   Query: {
-    getUser: (parent, { id }, { models }) => models.User.findOne({ where: { id } }),
+    getUser: (parent, { id }, { models }) => {
+      return models.sequelize.models.User.findOne({ where: { id } })
+    },
     allUsers: (parent, args, { models }) => models.sequelize.models.User.findAll(),
   },
   Mutation: {
     login: async (_, { email, password }, { models, secret, secret2 }) => {
-      console.log("login")
       return login(email, password, models.sequelize.models.User, secret, secret2)
     },
     register: async (parent, user, { models, secret, secret2 }) => {

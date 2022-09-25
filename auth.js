@@ -58,5 +58,6 @@ export const login = async (email, password, userModel, secret, secret2) => {
     ok: true,
     token,
     refreshToken,
+    user
   };
 };

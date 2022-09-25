@@ -21,6 +21,7 @@ export default `
   }
   type LoginResponse {
     ok:Boolean!
+    user:User
     token:String
     refreshToken:String
     errors:[Error]
