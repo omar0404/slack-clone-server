@@ -1,15 +1,16 @@
-const isAuthenticated = () => (root, args, context, info) => {
+import { AuthenticationError } from "apollo-server-core"
+
+const isAuthenticated = () => async (root, args, context, info) => {
   if (!context.userId) {
-    throw new Error('You are not authenticated!')
+    await new Promise(resolve => {
+      setTimeout(resolve, 500);
+    })
+    throw new AuthenticationError('You are not authenticated!')
   }
-  return next(root, args, context, info)
-}
-
-const hasRole = (role) => (root, args, context, info) => {
-  if (!context?.currentUser?.roles || context?.currentUser?.roles?.includes(role)) {
-    throw new Error('You are not authorized!')
-  }
+  return true
 }
 
 
-export { hasRole, isAuthenticated }
+
+
+export { isAuthenticated }
