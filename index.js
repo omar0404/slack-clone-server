@@ -9,6 +9,7 @@ import models, { sequelize } from './models';
 import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import './permissions'
 import { refreshToken } from './auth';
+import user from './models/user';
 async function assertDatabaseConnectionOk() {
   console.log(`Checking database connection...`);
   try {
@@ -22,16 +23,17 @@ async function assertDatabaseConnectionOk() {
 }
 const SECRET = 'asiodfhoi1hoi23jnl1kejd';
 const SECRET2 = 'asiodfhoi1hoi23jnl1kejasdjlkfasdd';
-const persistUser = (req, res, next) => {
+const persistUser = async (req, res, next) => {
   const token = req.headers.authorization || '';
+  const refreshtoken = req.headers.refreshtoken || '';
   if (token) {
 
     try {
       const { userId } = jwt.verify(token, SECRET)
-      console.log("userId", userId)
       req.userId = userId
     } catch (error) {
       if (error instanceof TokenExpiredError) {
+        await refreshToken(refreshtoken, user, SECRET, SECRET2)
       }
     }
   }
