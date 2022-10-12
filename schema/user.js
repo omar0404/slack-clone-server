@@ -1,10 +1,11 @@
 export default `
   type User {
-    id: Int!
+    id: ID!
     username: String!
     email: String
     password:String!
   }
+  
   type Query {
     getUser(id: Int!): User!
     allUsers: [User!]!
